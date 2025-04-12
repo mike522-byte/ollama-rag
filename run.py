@@ -16,20 +16,17 @@ def run_frontend(port=8501):
     return subprocess.Popen(frontend_cmd)
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the RAG Prototype")
+    parser = argparse.ArgumentParser(description="Run the RAG System")
     parser.add_argument("--api-port", type=int, default=8000, help="Port for the API server")
     parser.add_argument("--frontend-port", type=int, default=8501, help="Port for the Streamlit frontend")
-    parser.add_argument("--model-name", type=str, default="mistral-7b-instruct-v0.2", help="Name of the model to use")
-    parser.add_argument("--use-4bit", action="store_true", help="Use 4-bit quantization")
-    
+    parser.add_argument("--model-name", type=str, default="mistral", help="Name of the model to use")
+
     args = parser.parse_args()
     
     # Set environment variables
     os.environ["MODEL_NAME"] = args.model_name
-    os.environ["USE_4BIT"] = str(args.use_4bit).lower()
     
     print(f"Starting RAG with model: {args.model_name}")
-    print(f"4-bit quantization: {'Enabled' if args.use_4bit else 'Disabled'}")
     
     # Start the API server
     api_process = run_api(args.api_port)

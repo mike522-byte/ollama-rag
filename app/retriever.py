@@ -32,18 +32,30 @@ class Retriever:
             metadata={"hnsw:space": "cosine"}
         )
 
+    def clear(self):
+        """Clears all indexed documents by deleting and recreating the collection."""
+        self.client.delete_collection(name="documents")
+        self.collection = self.client.get_or_create_collection(
+            name="documents",
+            metadata={"hnsw:space": "cosine"}
+        )
+        print("Cleared all documents by recreating the collection.")
+
     def add_documents(self, documents: List[Dict]) -> None:
         """Add documents to the vector store."""
         # Prepare documents for ChromaDB
         texts = [doc["content"] for doc in documents]
-        ids = [str(uuid.uuid4()) for _ in documents]
+        ids = [str(uuid.uuid4()) for _ in documents] 
         embeddings = self.embedding_model.encode(
             texts,
             convert_to_numpy=True,
             show_progress_bar=True
         ).tolist()
-        metadatas = [doc["metadata"] for doc in documents]
-        
+        metadatas = [doc.get("metadata") for doc in documents]
+
+        # Normalize embeddings before storing in ChromaDB
+        embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+
         # Add to ChromaDB
         self.collection.add(
             embeddings=embeddings,
@@ -60,6 +72,8 @@ class Retriever:
             convert_to_numpy=True
         ).tolist()
         
+        query_embedding = query_embedding / np.linalg.norm(query_embedding)
+
         # Search in ChromaDB
         results = self.collection.query(
             query_embeddings=[query_embedding],
@@ -137,5 +151,6 @@ class Retriever:
         return False
 
 
-    
-    
+if __name__ == "__main__":
+    retriever = Retriever()
+    print(retriever.collection.metadata)

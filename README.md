@@ -1,65 +1,107 @@
-# RAGStack
-A Retrieval-Augmented Generation (RAG) system with local LLM support.
+# OllamaRAG: A Full-Stack Retrieval-Augmented Generation System
 
-## Setup
+OllamaRAG is a full-stack Retrieval-Augmented Generation (RAG) system that integrates a **Streamlit frontend**, a **FastAPI backend**, and **Ollama's LLM** for generating responses. The system also includes evaluation capabilities using **DeepEval** to assess the quality of the RAG pipeline.
 
-1. Install dependencies:
+## 1. Install Dependencies
+
+Install the required Python packages:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Login to Huggingface (if downloading models):
-```bash
-huggingface-cli login
-```
+## 2. Running the System
 
-3. Download a model:
-```bash
-# Set your Hugging Face token
-export HUGGINGFACE_TOKEN="your_token_here"
-python app/download_model.py "your_model_here"
-```
-
-## Running the System
-
-### Option 1: Run everything with a single command
+### Option 1: Run Everything with a Single Command
 
 ```bash
 # Basic usage
 python run.py
 
-# With custom model and 4-bit quantization
-python run.py --model-name mistral-7b-instruct-v0.2 --use-4bit
+# With a custom model
+python run.py --model-name mistral
 ```
+---
 
-### Option 2: Run services separately
+## 3. Accessing the System
+
+- **Frontend**: [http://localhost:8501](http://localhost:8501)
+- **API**: [http://localhost:8000](http://localhost:8000)
+- **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+---
+
+## 4. Evaluating the RAG Pipeline
+
+### Using Ollama Models
+
+To evaluate the RAG pipeline with Ollama models, use the following commands:
 
 ```bash
-# Terminal 1 - Start the API
-uvicorn app.api:app --reload --port 8000
+# Set the judge LLM
+deepeval set-ollama llama3:8b
 
-# Terminal 2 - Start the Streamlit interface
-streamlit run app/main.py
+# Unset the judge LLM
+deepeval unset-ollama
 ```
 
-## Accessing the System
+### Using Gemini Models
 
-- Frontend: http://localhost:8501
-- API: http://localhost:8000
-- API docs: http://localhost:8000/docs
+To evaluate with Gemini models, run:
 
-## Features
+```bash
+deepeval set-gemini \
+    --model-name=<model_name> \ # e.g., "gemini-2.0-flash-001"
+    --google-api-key=<api_key>
+```
 
-- Multiple Documents upload and processing
-- Semantic search and retrieval
-- Local LLM inference
-- 4-bit quantization support
+---
 
-## Configuration
+## System Components
 
-You can configure the system using environment variables:
+### 1. **Streamlit Frontend**
+   - Provides an interactive interface for users to upload documents, ask questions, and view responses.
+   - Displays document metadata and retrieval sources.
 
-- `MODEL_NAME`: Name of the model to use (e.g., "mistral-7b-instruct-v0.2")
-- `USE_4BIT`: Whether to use 4-bit quantization (true/false)
+### 2. **FastAPI Backend**
+   - Handles document processing, retrieval, and LLM integration.
+   - Provides endpoints for uploading documents, querying, and managing the system.
 
-Or through the command line arguments when using `run.py`.
+### 3. **Retriever**
+   - Uses ChromaDB for semantic search and retrieval.
+   - Supports document chunking and hybrid search with reranking.
+
+### 4. **LLM Integration**
+   - Leverages Ollama's LLM for generating responses based on retrieved documents.
+   - Supports configurable parameters like `temperature` and `top_p`.
+
+### 5. **Evaluation with DeepEval**
+   - Benchmarks the RAG pipeline using metrics like:
+     - **Answer Relevancy**
+     - **Faithfulness**
+     - **Contextual Precision**
+     - **Contextual Recall**
+
+---
+
+## Example Workflow
+
+1. **Upload Documents**: Use the Streamlit interface to upload PDF, TXT, or DOCX files.
+2. **Ask Questions**: Enter a query in the chat interface.
+3. **View Responses**: See the generated answer along with the retrieved document sources.
+4. **Evaluate**: Use DeepEval to benchmark the system's performance.
+
+---
+
+## Future Improvements
+
+- Add support for more document formats.
+- Optimize retrieval and generation for larger datasets.
+- Extend evaluation metrics for more comprehensive benchmarking.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+

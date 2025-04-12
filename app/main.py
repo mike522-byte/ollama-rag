@@ -54,7 +54,7 @@ class RAGInterface:
                 st.markdown(f"**Source {idx}**")
                 st.markdown(f"*From: {source['metadata']['source']}*")
                 st.markdown(f"```\n{source['content']}\n```")
-                st.markdown(f"Relevance Score: {source['rerank_score']:.2f}")
+                st.markdown(f"Relevance Score: {source['similarity_score']:.2f}")
                 st.markdown("---")
 
     def main(self):

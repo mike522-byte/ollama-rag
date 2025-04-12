@@ -6,7 +6,7 @@ import docx2txt
 import io
 from tqdm import tqdm
 import hashlib
-
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 class DocumentParser:
     def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
@@ -59,27 +59,21 @@ class DocumentParser:
         return text
 
     def _create_chunks(self, text: str, metadata: Dict) -> List[Dict]:
-        """Create overlapping chunks from text."""
-        words = text.split()
-        chunks = []
-        
-        # Calculate chunks with overlap
-        for i in range(0, len(words), self.chunk_size - self.chunk_overlap):
-            chunk_words = words[i:i + self.chunk_size]
-            if chunk_words:
-                chunk_text = " ".join(chunk_words)
-                chunk_metadata = {
-                    **metadata,
-                    "chunk_index": len(chunks),
-                    "start_index": i,
-                    "end_index": i + len(chunk_words)
-                }
-                chunks.append({
-                    "content": chunk_text,
-                    "metadata": chunk_metadata
-                })
-        
-        return chunks
+        """Create overlapping chunks from text using RecursiveCharacterTextSplitter."""
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=self.chunk_size,
+            chunk_overlap=self.chunk_overlap,
+            separators=["\n\n", "\n", " ", ". "]
+        )
+
+        # Create LangChain Document objects
+        split_docs = text_splitter.create_documents(
+            texts=[text],
+            metadatas=[metadata]  # This gets copied into each chunk
+        )
+
+        return split_docs
+
     
     def compute_hash(self, content: bytes) -> str:
         """Compute SHA256 hash of the file content."""

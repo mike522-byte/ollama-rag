@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import uvicorn
-from pathlib import Path
+import time
 import logging
 import os
 from pydantic import BaseModel
@@ -30,14 +30,12 @@ app.add_middleware(
 
 # Get model path from environment variable or use default
 MODEL_NAME = os.getenv("MODEL_NAME", "mistral-7b-instruct-v0.2")
-USE_4BIT = os.getenv("USE_4BIT", "True").lower() == "true"
 
 # Initialize components
 doc_parser = DocumentParser()
 retriever = Retriever()
 llm = LocalLLM(
     model_name=MODEL_NAME,
-    use_4bit=USE_4BIT
 )
 
 # Pydantic models
@@ -51,7 +49,6 @@ class Response(BaseModel):
 
 class ModelConfig(BaseModel):
     model_name: str
-    use_4bit: bool
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
@@ -85,16 +82,22 @@ async def query(query: Query):
     """Process a query and return response with sources."""
     try:
         # Retrieve relevant documents
+        retrieval_start = time.time()
         relevant_chunks = retriever.retrieve(
             query.query,
             rerank_k=query.top_k
         )
-        
+        retrieval_time = time.time() - retrieval_start
+        logger.info(f"Retrieval took {retrieval_time:.2f} seconds")
+
         # Generate response using LLM
+        generation_start = time.time()
         response = llm.generate_response(
             query.query,
             relevant_chunks
         )
+        generation_time = time.time() - generation_start
+        logger.info(f"Generation took {generation_time:.2f} seconds")
         
         return response
     except Exception as e:
@@ -131,7 +134,6 @@ async def get_model_info():
     try:
         return {
             "model_name": MODEL_NAME,
-            "use_4bit": USE_4BIT,
             "device": llm.device
         }
     except Exception as e:
@@ -145,12 +147,10 @@ async def reload_model(config: ModelConfig):
         global llm
         llm = LocalLLM(
             model_name=config.model_name,
-            use_4bit=config.use_4bit
         )
         return {
             "message": "Model reloaded successfully",
             "model_name": config.model_name,
-            "use_4bit": config.use_4bit
         }
     except Exception as e:
         logger.error(f"Error reloading model: {str(e)}")
