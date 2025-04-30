@@ -2,6 +2,9 @@
 
 OllamaRAG is a full-stack Retrieval-Augmented Generation (RAG) system that integrates a **Streamlit frontend**, a **FastAPI backend**, and **Ollama's LLM** for generating responses. The system also includes evaluation capabilities using **DeepEval** to assess the quality of the RAG pipeline.
 
+# Demo
+[streamlit-main-2025-04-30-22-04-34.webm](https://github.com/user-attachments/assets/cae75225-61fe-4164-9a57-53038a2398ac)
+
 ## 1. Install Dependencies
 
 Install the required Python packages:
