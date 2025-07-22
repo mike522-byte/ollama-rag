@@ -3,7 +3,7 @@ from typing import List, Dict
 import logging
 
 class LocalLLM:
-    def __init__(self, model_name: str = 'mistral', top_p: float = 0.05, temperature: float = 0.5):
+    def __init__(self, model_name: str = 'llama3.2', top_p: float = 0.05, temperature: float = 0.5):
         self.model_name = model_name
         self.base_url = "http://localhost:11434/api/generate"
         self.logger = logging.getLogger(__name__)
@@ -14,15 +14,20 @@ class LocalLLM:
         """Create a prompt from the query and context."""
         context_str = "\n".join([chunk['content'] for chunk in context])
         
-        prompt = f"""<s>[INST] <<SYS>>
-You are a helpful AI assistant. Answer the question based on the provided context.
-If you cannot answer based on the context, say "I cannot answer this question based on the provided context."
-<</SYS>>
+        prompt = f"""<|begin_of_text|>
+                <|start_header_id|>system<|end_header_id|>
+                You are an AI assistant that answers questions based strictly on the provided context. 
+                Follow these rules:
+                - Only use the given context to answer, do not use external knowledge
+                - If the context doesn't contain the answer, say "I cannot find the answer in the provided context"
+                - Keep answers concise and accurate<|eot_id|>
 
-Context:
-{context_str}
+                <|start_header_id|>user<|end_header_id|>
+                Context: \"\"\"{context_str}\"\"\"
 
-Question: {query} [/INST]"""
+                Question: {query}<|eot_id|>
+
+                <|start_header_id|>assistant<|end_header_id|>"""
         
         return prompt
 
@@ -46,7 +51,7 @@ Question: {query} [/INST]"""
             response = requests.post(self.base_url, json=payload)
             response.raise_for_status()
             result = response.json()
-            
+
             return {
                 "answer": result.get("response", "").strip(),
                 "sources": relevant_chunks
@@ -64,7 +69,7 @@ Question: {query} [/INST]"""
         return self.generate_response(query, relevant_chunks)
     
 if __name__ == "__main__":
-    llm = LocalLLM(model_name="mistral")
+    llm = LocalLLM(model_name="llama3.2", temperature=0.7, top_p=0.9)
     test_query = "What is the capital of France?"
     test_chunks = [{"content": "France is a country in Europe. Its capital is Paris."}]
     print(llm(test_query, test_chunks))

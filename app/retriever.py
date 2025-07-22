@@ -45,16 +45,19 @@ class Retriever:
         """Add documents to the vector store."""
         # Prepare documents for ChromaDB
         texts = [doc["content"] for doc in documents]
-        ids = [str(uuid.uuid4()) for _ in documents] 
+        ids = [str(uuid.uuid4()) for _ in documents]
+
         embeddings = self.embedding_model.encode(
             texts,
             convert_to_numpy=True,
             show_progress_bar=True
-        ).tolist()
+        )
         metadatas = [doc.get("metadata") for doc in documents]
 
         # Normalize embeddings before storing in ChromaDB
         embeddings = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
+
+        embeddings = embeddings.tolist()  # Convert to list for ChromaDB compatibility
 
         # Add to ChromaDB
         self.collection.add(
@@ -70,13 +73,15 @@ class Retriever:
         query_embedding = self.embedding_model.encode(
             query,
             convert_to_numpy=True
-        ).tolist()
+        )
         
         query_embedding = query_embedding / np.linalg.norm(query_embedding)
 
+        query_embedding = query_embedding.tolist()  # Convert to list for ChromaDB compatibility
+
         # Search in ChromaDB
         results = self.collection.query(
-            query_embeddings=[query_embedding],
+            query_embeddings=query_embedding,
             n_results=k,
             include=["documents", "metadatas", "distances"]
         )
@@ -133,8 +138,7 @@ class Retriever:
                 where={"source": filename}
             )
             
-            # Convert to set to remove duplicates, then back to list
-            unique_ids = list(set(results["ids"]))
+            unique_ids = results["ids"]
             
             if unique_ids:
                 self.collection.delete(ids=unique_ids)

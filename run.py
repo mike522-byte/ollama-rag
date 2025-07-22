@@ -19,7 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run the RAG System")
     parser.add_argument("--api-port", type=int, default=8000, help="Port for the API server")
     parser.add_argument("--frontend-port", type=int, default=8501, help="Port for the Streamlit frontend")
-    parser.add_argument("--model-name", type=str, default="mistral", help="Name of the model to use")
+    parser.add_argument("--model-name", type=str, default="llama3.2", help="Name of the model to use")
 
     args = parser.parse_args()
     

@@ -12,16 +12,19 @@ pip install -r requirements.txt
 
 ## 2. Running the System
 
-### Option 1: Run Everything with a Single Command
-
 ```bash
+# starting ollama server
+ollama serve
+
+# pulling llm model
+ollama pull llama3
+
 # Basic usage
 python run.py
 
 # With a custom model
-python run.py --model-name mistral
+python run.py --model-name llama3
 ```
----
 
 ## 3. Accessing the System
 
@@ -29,7 +32,6 @@ python run.py --model-name mistral
 - **API**: [http://localhost:8000](http://localhost:8000)
 - **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
----
 
 ## 4. Evaluating the RAG Pipeline
 
@@ -55,7 +57,6 @@ deepeval set-gemini \
     --google-api-key=<api_key>
 ```
 
----
 
 ## System Components
 
@@ -76,13 +77,13 @@ deepeval set-gemini \
    - Supports configurable parameters like `temperature` and `top_p`.
 
 ### 5. **Evaluation with DeepEval**
-   - Benchmarks the RAG pipeline using metrics like:
+   - Benchmarks the RAG pipeline using llm-based metrics like:
      - **Answer Relevancy**
      - **Faithfulness**
      - **Contextual Precision**
      - **Contextual Recall**
 
----
+
 
 ## Example Workflow
 
@@ -91,15 +92,12 @@ deepeval set-gemini \
 3. **View Responses**: See the generated answer along with the retrieved document sources.
 4. **Evaluate**: Use DeepEval to benchmark the system's performance.
 
----
-
 ## Future Improvements
 
 - Add support for more document formats.
 - Optimize retrieval and generation for larger datasets.
 - Extend evaluation metrics for more comprehensive benchmarking.
 
----
 
 ## License
 

@@ -9,12 +9,10 @@ class RAGInterface:
     def __init__(self):
         self.API_URL = "http://localhost:8000"
         
-
     def _init_session_state(self):
         """Initialize session state variables."""
         if "messages" not in st.session_state:
             st.session_state.messages = []
-
 
     def _display_documents(self):
         try:

@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 # Get model path from environment variable or use default
-MODEL_NAME = os.getenv("MODEL_NAME", "mistral-7b-instruct-v0.2")
+MODEL_NAME = os.getenv("MODEL_NAME", "llama3.2")
 
 # Initialize components
 doc_parser = DocumentParser()

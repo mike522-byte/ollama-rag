@@ -63,7 +63,7 @@ class DocumentParser:
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap,
-            separators=["\n\n", "\n", " ", ". "]
+            separators=["\n\n", "\n", " ", "", "."]
         )
 
         # Create LangChain Document objects
@@ -72,7 +72,7 @@ class DocumentParser:
             metadatas=[metadata]  # This gets copied into each chunk
         )
 
-        return split_docs
+        return [{'content': doc.page_content, 'metadata': doc.metadata} for doc in split_docs]
 
     
     def compute_hash(self, content: bytes) -> str:
